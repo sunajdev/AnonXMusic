@@ -12,6 +12,7 @@ from AnonXMusic.utils import AnonyBin, get_channeplayCB, seconds_to_min
 from AnonXMusic.utils.database import get_cmode, is_active_chat, is_music_playing
 from AnonXMusic.utils.decorators.language import language, languageCB
 from AnonXMusic.utils.inline import queue_back_markup, queue_markup
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS
 
 basic = {}
@@ -45,20 +46,29 @@ async def get_queue(client, message: Message, _):
     if message.command[0][0] == "c":
         chat_id = await get_cmode(message.chat.id)
         if chat_id is None:
-            return await message.reply_text(_["setting_7"])
+            mystic = await message.reply_text(_["setting_7"])
+            await delete_message(message.chat.id, mystic.id)
+            return 
         try:
             await app.get_chat(chat_id)
         except:
-            return await message.reply_text(_["cplay_4"])
+            mystic = await message.reply_text(_["cplay_4"])
+            await delete_message(message.chat.id, mystic.id)
+            return 
         cplay = True
     else:
         chat_id = message.chat.id
         cplay = False
     if not await is_active_chat(chat_id):
-        return await message.reply_text(_["general_5"])
+        mystic = await message.reply_text(_["general_5"])
+        await delete_message(chat_id, mystic.id)
+        return 
     got = db.get(chat_id)
     if not got:
-        return await message.reply_text(_["queue_2"])
+        mystic = await message.reply_text(_["queue_2"])
+        await delete_message(chat_id, mystic.id)
+        return 
+    
     file = got[0]["file"]
     videoid = got[0]["vidid"]
     user = got[0]["by"]
@@ -115,6 +125,7 @@ async def get_queue(client, message: Message, _):
                                     db[chat_id][0]["dur"],
                                 )
                                 await mystic.edit_reply_markup(reply_markup=buttons)
+                                await delete_message(chat_id, mystic.id, long_seconds=30)
                             except FloodWait:
                                 pass
                         else:
@@ -173,15 +184,20 @@ async def queued_tracks(client, CallbackQuery: CallbackQuery, _):
     if "Queued" in msg:
         if len(msg) < 700:
             await asyncio.sleep(1)
-            return await CallbackQuery.edit_message_text(msg, reply_markup=buttons)
+            mystic = await CallbackQuery.edit_message_text(msg, reply_markup=buttons)
+            await delete_message(chat_id, mystic.id, long_seconds=30)
+            return 
         if "✨" in msg:
             msg = msg.replace("✨", "")
         link = await AnonyBin(msg)
         med = InputMediaPhoto(media=link, caption=_["queue_3"].format(link))
-        await CallbackQuery.edit_message_media(media=med, reply_markup=buttons)
+        mystic = await CallbackQuery.edit_message_media(media=med, reply_markup=buttons)
+        await delete_message(chat_id, mystic.id, long_seconds=30)
     else:
         await asyncio.sleep(1)
-        return await CallbackQuery.edit_message_text(msg, reply_markup=buttons)
+        mystic = await CallbackQuery.edit_message_text(msg, reply_markup=buttons)
+        await delete_message(chat_id, mystic.id, long_seconds=30)
+        return 
 
 
 @app.on_callback_query(filters.regex("queue_back_timer") & ~BANNED_USERS)
@@ -267,3 +283,4 @@ async def queue_back(client, CallbackQuery: CallbackQuery, _):
                     break
         except:
             return
+    await delete_message(chat_id, mystic.id, long_seconds=30)

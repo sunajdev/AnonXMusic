@@ -142,6 +142,7 @@ class YouTubeAPI:
         playlist = await shell_cmd(
             f"yt-dlp -i --get-id --flat-playlist --playlist-end {limit} --skip-download {link}"
         )
+        print(f'in playlist: playlist({playlist})')
         try:
             result = playlist.split("\n")
             for key in result:
@@ -149,6 +150,7 @@ class YouTubeAPI:
                     result.remove(key)
         except:
             result = []
+        print(f'in playlist: result({result})')
         return result
 
     async def track(self, link: str, videoid: Union[bool, str] = None):

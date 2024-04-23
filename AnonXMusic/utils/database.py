@@ -37,7 +37,7 @@ pause = {}
 playmode = {}
 playtype = {}
 skipmode = {}
-
+autodelete = {}
 
 async def get_assistant_number(chat_id: int) -> str:
     assistant = assistantdict.get(chat_id)
@@ -644,3 +644,15 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
+
+
+# keep track of the /autodelete command per chat id, which saves the amount of seconds to wait before deleting the message per chat id
+async def get_autodelete(chat_id: int) -> int:
+    value = autodelete.get(chat_id)
+    if not value:
+        autodelete[chat_id] = 3 # default to 3 seconds
+        return autodelete[chat_id] 
+    return value
+
+async def set_autodelete(chat_id: int, seconds: int):
+    autodelete[chat_id] = seconds

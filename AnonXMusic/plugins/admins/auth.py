@@ -11,6 +11,7 @@ from AnonXMusic.utils.database import (
 )
 from AnonXMusic.utils.decorators import AdminActual, language
 from AnonXMusic.utils.inline import close_markup
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS, adminlist
 
 
@@ -19,7 +20,9 @@ from config import BANNED_USERS, adminlist
 async def auth(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+            mystic = await message.reply_text(_["general_1"])
+            await delete_message(message.chat.id, mystic.id)
+            return 
     user = await extract_user(message)
     token = await int_to_alpha(user.id)
     _check = await get_authuser_names(message.chat.id)
@@ -38,9 +41,13 @@ async def auth(client, message: Message, _):
             if user.id not in get:
                 get.append(user.id)
         await save_authuser(message.chat.id, token, assis)
-        return await message.reply_text(_["auth_2"].format(user.mention))
+        mystic = await message.reply_text(_["auth_2"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
+        return
     else:
-        return await message.reply_text(_["auth_3"].format(user.mention))
+        mystic = await message.reply_text(_["auth_3"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
+        return
 
 
 @app.on_message(filters.command("unauth") & filters.group & ~BANNED_USERS)
@@ -48,7 +55,9 @@ async def auth(client, message: Message, _):
 async def unauthusers(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+            mystic = await message.reply_text(_["general_1"])
+            await delete_message(message.chat.id, mystic.id)
+            return
     user = await extract_user(message)
     token = await int_to_alpha(user.id)
     deleted = await delete_authuser(message.chat.id, token)
@@ -57,9 +66,12 @@ async def unauthusers(client, message: Message, _):
         if user.id in get:
             get.remove(user.id)
     if deleted:
-        return await message.reply_text(_["auth_4"].format(user.mention))
+        mystic = await message.reply_text(_["auth_4"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
+        return
     else:
-        return await message.reply_text(_["auth_5"].format(user.mention))
+        mystic = await message.reply_text(_["auth_5"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
 
 
 @app.on_message(
@@ -69,7 +81,9 @@ async def unauthusers(client, message: Message, _):
 async def authusers(client, message: Message, _):
     _wtf = await get_authuser_names(message.chat.id)
     if not _wtf:
-        return await message.reply_text(_["setting_4"])
+        mystic = await message.reply_text(_["setting_4"])
+        await delete_message(message.chat.id, mystic.id)
+        return 
     else:
         j = 0
         mystic = await message.reply_text(_["auth_6"])
@@ -87,3 +101,4 @@ async def authusers(client, message: Message, _):
             text += f"{j}➤ {user}[<code>{user_id}</code>]\n"
             text += f"   {_['auth_8']} {admin_name}[<code>{admin_id}</code>]\n\n"
         await mystic.edit_text(text, reply_markup=close_markup(_))
+        await delete_message(message.chat.id, mystic.id, long_seconds=30)

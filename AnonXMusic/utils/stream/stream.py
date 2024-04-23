@@ -37,6 +37,8 @@ async def stream(
         msg = f"{_['play_19']}\n\n"
         count = 0
         for search in result:
+            print('search:', search)
+            print('count:', count)
             if int(count) == config.PLAYLIST_FETCH_LIMIT:
                 continue
             try:

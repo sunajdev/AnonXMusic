@@ -1,6 +1,4 @@
 import os
-from typing import List
-
 import yaml
 
 languages = {}
@@ -24,11 +22,13 @@ for filename in os.listdir(r"./strings/langs/"):
         languages[language_name] = yaml.safe_load(
             open(r"./strings/langs/" + filename, encoding="utf8")
         )
+
+        # this will add any missing strings from 'en' to other languages
         for item in languages["en"]:
             if item not in languages[language_name]:
                 languages[language_name][item] = languages["en"][item]
     try:
         languages_present[language_name] = languages[language_name]["name"]
-    except:
-        print("There is some issue with the language file inside bot.")
+    except Exception as e:
+        print(f"Error loading {filename} > reason: {e}")
         exit()

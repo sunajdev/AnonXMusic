@@ -8,6 +8,7 @@ from AnonXMusic.utils import help_pannel
 from AnonXMusic.utils.database import get_lang
 from AnonXMusic.utils.decorators.language import LanguageStart, languageCB
 from AnonXMusic.utils.inline.help import help_back_markup, private_help_panel
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS, START_IMG_URL, SUPPORT_CHAT
 from strings import get_string, helpers
 
@@ -28,7 +29,7 @@ async def helper_private(
         _ = get_string(language)
         keyboard = help_pannel(_, True)
         await update.edit_message_text(
-            _["help_1"].format(SUPPORT_CHAT), reply_markup=keyboard
+            _["help_1"], reply_markup=keyboard
         )
     else:
         try:
@@ -40,7 +41,7 @@ async def helper_private(
         keyboard = help_pannel(_)
         await update.reply_photo(
             photo=START_IMG_URL,
-            caption=_["help_1"].format(SUPPORT_CHAT),
+            caption=_["help_1"],
             reply_markup=keyboard,
         )
 
@@ -49,7 +50,8 @@ async def helper_private(
 @LanguageStart
 async def help_com_group(client, message: Message, _):
     keyboard = private_help_panel(_)
-    await message.reply_text(_["help_2"], reply_markup=InlineKeyboardMarkup(keyboard))
+    mystic = await message.reply_text(_["help_2"], reply_markup=InlineKeyboardMarkup(keyboard))
+    await delete_message(message.chat.id, mystic.id, long_seconds=30)
 
 
 @app.on_callback_query(filters.regex("help_callback") & ~BANNED_USERS)
@@ -84,7 +86,7 @@ async def helper_cb(client, CallbackQuery, _):
         await CallbackQuery.edit_message_text(helpers.HELP_12, reply_markup=keyboard)
     elif cb == "hb13":
         await CallbackQuery.edit_message_text(helpers.HELP_13, reply_markup=keyboard)
-    elif cb == "hb14":
-        await CallbackQuery.edit_message_text(helpers.HELP_14, reply_markup=keyboard)
     elif cb == "hb15":
         await CallbackQuery.edit_message_text(helpers.HELP_15, reply_markup=keyboard)
+    elif cb == "hb16":
+        await CallbackQuery.edit_message_text(helpers.HELP_16, reply_markup=keyboard)

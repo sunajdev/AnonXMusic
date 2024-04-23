@@ -10,6 +10,7 @@ from AnonXMusic.utils.decorators import AdminRightsCheck
 from AnonXMusic.utils.inline import close_markup, stream_markup
 from AnonXMusic.utils.stream.autoclear import auto_clean
 from AnonXMusic.utils.thumbnails import get_thumb
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS
 
 
@@ -21,7 +22,9 @@ async def skip(cli, message: Message, _, chat_id):
     if not len(message.command) < 2:
         loop = await get_loop(chat_id)
         if loop != 0:
-            return await message.reply_text(_["admin_8"])
+            mystic = await message.reply_text(_["admin_8"])
+            await delete_message(chat_id, mystic.id)
+            return
         state = message.text.split(None, 1)[1].strip()
         if state.isnumeric():
             state = int(state)
@@ -36,30 +39,41 @@ async def skip(cli, message: Message, _, chat_id):
                             try:
                                 popped = check.pop(0)
                             except:
-                                return await message.reply_text(_["admin_12"])
+                                mystic = await message.reply_text(_["admin_12"])
+                                await delete_message(chat_id, mystic.id)
+                                return 
                             if popped:
                                 await auto_clean(popped)
                             if not check:
                                 try:
-                                    await message.reply_text(
+                                    mystic = await message.reply_text(
                                         text=_["admin_6"].format(
                                             message.from_user.mention,
                                             message.chat.title,
                                         ),
                                         reply_markup=close_markup(_),
                                     )
+                                    await delete_message(chat_id, mystic.id)
                                     await Anony.stop_stream(chat_id)
                                 except:
                                     return
                                 break
                     else:
-                        return await message.reply_text(_["admin_11"].format(count))
+                        mystic = await message.reply_text(_["admin_11"].format(count))
+                        await delete_message(chat_id, mystic.id)
+                        return 
                 else:
-                    return await message.reply_text(_["admin_10"])
+                    mystic = await message.reply_text(_["admin_10"])
+                    await delete_message(chat_id, mystic.id)
+                    return 
             else:
-                return await message.reply_text(_["queue_2"])
+                mystic = await message.reply_text(_["queue_2"])
+                await delete_message(chat_id, mystic.id)
+                return 
         else:
-            return await message.reply_text(_["admin_9"])
+            mystic = await message.reply_text(_["admin_9"])
+            await delete_message(chat_id, mystic.id)
+            return 
     else:
         check = db.get(chat_id)
         popped = None
@@ -68,24 +82,26 @@ async def skip(cli, message: Message, _, chat_id):
             if popped:
                 await auto_clean(popped)
             if not check:
-                await message.reply_text(
+                mystic = await message.reply_text(
                     text=_["admin_6"].format(
                         message.from_user.mention, message.chat.title
                     ),
                     reply_markup=close_markup(_),
                 )
+                await delete_message(chat_id, mystic.id)
                 try:
                     return await Anony.stop_stream(chat_id)
                 except:
                     return
         except:
             try:
-                await message.reply_text(
+                mystic = await message.reply_text(
                     text=_["admin_6"].format(
                         message.from_user.mention, message.chat.title
                     ),
                     reply_markup=close_markup(_),
                 )
+                await delete_message(chat_id, mystic.id)
                 return await Anony.stop_stream(chat_id)
             except:
                 return
@@ -105,7 +121,9 @@ async def skip(cli, message: Message, _, chat_id):
     if "live_" in queued:
         n, link = await YouTube.video(videoid, True)
         if n == 0:
-            return await message.reply_text(_["admin_7"].format(title))
+            mystic = await message.reply_text(_["admin_7"].format(title))
+            await delete_message(chat_id, mystic.id)
+            return 
         try:
             image = await YouTube.thumbnail(videoid, True)
         except:
@@ -113,7 +131,9 @@ async def skip(cli, message: Message, _, chat_id):
         try:
             await Anony.skip_stream(chat_id, link, video=status, image=image)
         except:
-            return await message.reply_text(_["call_6"])
+            mystic = await message.reply_text(_["call_6"])
+            await delete_message(chat_id, mystic.id)
+            return 
         button = stream_markup(_, chat_id)
         img = await get_thumb(videoid)
         run = await message.reply_photo(
@@ -138,7 +158,9 @@ async def skip(cli, message: Message, _, chat_id):
                 video=status,
             )
         except:
-            return await mystic.edit_text(_["call_6"])
+            await mystic.edit_text(_["call_6"])
+            await delete_message(chat_id, mystic.id)
+            return 
         try:
             image = await YouTube.thumbnail(videoid, True)
         except:
@@ -146,7 +168,10 @@ async def skip(cli, message: Message, _, chat_id):
         try:
             await Anony.skip_stream(chat_id, file_path, video=status, image=image)
         except:
-            return await mystic.edit_text(_["call_6"])
+            await mystic.edit_text(_["call_6"])
+            await delete_message(chat_id, mystic.id)
+            return 
+
         button = stream_markup(_, chat_id)
         img = await get_thumb(videoid)
         run = await message.reply_photo(
@@ -166,7 +191,9 @@ async def skip(cli, message: Message, _, chat_id):
         try:
             await Anony.skip_stream(chat_id, videoid, video=status)
         except:
-            return await message.reply_text(_["call_6"])
+            mystic = await message.reply_text(_["call_6"])
+            await delete_message(chat_id, mystic.id)
+            return 
         button = stream_markup(_, chat_id)
         run = await message.reply_photo(
             photo=config.STREAM_IMG_URL,
@@ -188,7 +215,9 @@ async def skip(cli, message: Message, _, chat_id):
         try:
             await Anony.skip_stream(chat_id, queued, video=status, image=image)
         except:
-            return await message.reply_text(_["call_6"])
+            mystic = await message.reply_text(_["call_6"])
+            await delete_message(chat_id, mystic.id)
+            return 
         if videoid == "telegram":
             button = stream_markup(_, chat_id)
             run = await message.reply_photo(

@@ -30,6 +30,7 @@ from AnonXMusic.utils.database import (
     remove_active_chat,
     remove_active_video_chat,
     set_loop,
+    get_autodelete
 )
 from AnonXMusic.utils.exceptions import AssistantErr
 from AnonXMusic.utils.formatters import check_duration, seconds_to_min, speed_converter
@@ -41,6 +42,15 @@ from strings import get_string
 autoend = {}
 counter = {}
 
+async def delete_message(chat_id, message_id, long_seconds=None):
+    seconds = await get_autodelete(chat_id)
+    if long_seconds:
+        seconds = long_seconds
+    await asyncio.sleep(int(seconds))
+    try:
+        await app.delete_messages(chat_id, message_id)
+    except:
+        pass
 
 async def _clear_(chat_id):
     db[chat_id] = []
@@ -168,12 +178,9 @@ class Call(PyTgCalls):
                 proc = await asyncio.create_subprocess_shell(
                     cmd=(
                         "ffmpeg "
-                        "-i "
-                        f"{file_path} "
-                        "-filter:v "
-                        f"setpts={vs}*PTS "
-                        "-filter:a "
-                        f"atempo={speed} "
+                        f"-i {file_path} "
+                        f"-filter:v setpts={vs}*PTS "
+                        f"-filter:a atempo={speed} "
                         f"{out}"
                     ),
                     stdin=asyncio.subprocess.PIPE,
@@ -205,6 +212,7 @@ class Call(PyTgCalls):
         if str(db[chat_id][0]["file"]) == str(file_path):
             await assistant.change_stream(chat_id, stream)
         else:
+            print('raise AssistantErr("Umm")')
             raise AssistantErr("Umm")
         if str(db[chat_id][0]["file"]) == str(file_path):
             exis = (playing[0]).get("old_dur")
@@ -369,10 +377,12 @@ class Call(PyTgCalls):
             if "live_" in queued:
                 n, link = await YouTube.video(videoid, True)
                 if n == 0:
-                    return await app.send_message(
+                    mystic = await app.send_message(
                         original_chat_id,
                         text=_["call_6"],
                     )
+                    await delete_message(original_chat_id, mystic.id)
+                    return
                 if video:
                     stream = AudioVideoPiped(
                         link,
@@ -387,10 +397,12 @@ class Call(PyTgCalls):
                 try:
                     await client.change_stream(chat_id, stream)
                 except Exception:
-                    return await app.send_message(
+                    mystic = await app.send_message(
                         original_chat_id,
                         text=_["call_6"],
                     )
+                    await delete_message(original_chat_id, mystic.id)
+                    return
                 img = await get_thumb(videoid)
                 button = stream_markup(_, chat_id)
                 run = await app.send_photo(
@@ -416,9 +428,11 @@ class Call(PyTgCalls):
                         video=True if str(streamtype) == "video" else False,
                     )
                 except:
-                    return await mystic.edit_text(
+                    mystic = await mystic.edit_text(
                         _["call_6"], disable_web_page_preview=True
                     )
+                    await delete_message(original_chat_id, mystic.id)
+                    return
                 if video:
                     stream = AudioVideoPiped(
                         file_path,
@@ -433,10 +447,12 @@ class Call(PyTgCalls):
                 try:
                     await client.change_stream(chat_id, stream)
                 except:
-                    return await app.send_message(
+                    mystic = await app.send_message(
                         original_chat_id,
                         text=_["call_6"],
                     )
+                    await delete_message(original_chat_id, mystic.id)
+                    return
                 img = await get_thumb(videoid)
                 button = stream_markup(_, chat_id)
                 await mystic.delete()
@@ -466,10 +482,12 @@ class Call(PyTgCalls):
                 try:
                     await client.change_stream(chat_id, stream)
                 except:
-                    return await app.send_message(
+                    mystic = await app.send_message(
                         original_chat_id,
                         text=_["call_6"],
                     )
+                    await delete_message(original_chat_id, mystic.id)
+                    return
                 button = stream_markup(_, chat_id)
                 run = await app.send_photo(
                     chat_id=original_chat_id,
@@ -494,10 +512,12 @@ class Call(PyTgCalls):
                 try:
                     await client.change_stream(chat_id, stream)
                 except:
-                    return await app.send_message(
+                    mystic = await app.send_message(
                         original_chat_id,
                         text=_["call_6"],
                     )
+                    await delete_message(original_chat_id, mystic.id)
+                    return
                 if videoid == "telegram":
                     button = stream_markup(_, chat_id)
                     run = await app.send_photo(

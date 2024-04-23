@@ -8,6 +8,7 @@ from AnonXMusic.utils import AdminRightsCheck
 from AnonXMusic.utils.database import is_active_chat, is_nonadmin_chat
 from AnonXMusic.utils.decorators.language import languageCB
 from AnonXMusic.utils.inline import close_markup, speed_markup
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS, adminlist
 
 checker = []
@@ -22,18 +23,26 @@ checker = []
 async def playback(cli, message: Message, _, chat_id):
     playing = db.get(chat_id)
     if not playing:
-        return await message.reply_text(_["queue_2"])
+        mystic = await message.reply_text(_["queue_2"])
+        await delete_message(message.chat.id, mystic.id)
+        return
     duration_seconds = int(playing[0]["seconds"])
     if duration_seconds == 0:
-        return await message.reply_text(_["admin_27"])
+        mystic = await message.reply_text(_["admin_27"])
+        await delete_message(message.chat.id, mystic.id)
+        return
     file_path = playing[0]["file"]
     if "downloads" not in file_path:
-        return await message.reply_text(_["admin_27"])
+        mystic = await message.reply_text(_["admin_27"])
+        await delete_message(message.chat.id, mystic.id)
+        return
     upl = speed_markup(_, chat_id)
-    return await message.reply_text(
+    mystic = await message.reply_text(
         text=_["admin_28"].format(app.mention),
         reply_markup=upl,
     )
+    await delete_message(message.chat.id, mystic.id, long_seconds=30)
+    return
 
 
 @app.on_callback_query(filters.regex("SpeedUP") & ~BANNED_USERS)
@@ -100,13 +109,17 @@ async def del_back_playlist(client, CallbackQuery, _):
             speed,
             playing,
         )
-    except:
+    except Exception as e:
+        print('exception speedup reason:', e)
         if chat_id in checker:
             checker.remove(chat_id)
-        return await mystic.edit_text(_["admin_33"], reply_markup=close_markup(_))
+        await mystic.edit_text(_["admin_33"], reply_markup=close_markup(_))
+        await delete_message(CallbackQuery.message.chat.id, mystic.id)
+        return 
     if chat_id in checker:
         checker.remove(chat_id)
     await mystic.edit_text(
         text=_["admin_34"].format(speed, CallbackQuery.from_user.mention),
         reply_markup=close_markup(_),
     )
+    await delete_message(CallbackQuery.message.chat.id, mystic.id)

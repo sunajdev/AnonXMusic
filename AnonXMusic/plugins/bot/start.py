@@ -20,6 +20,7 @@ from AnonXMusic.utils.database import (
 from AnonXMusic.utils.decorators.language import LanguageStart
 from AnonXMusic.utils.formatters import get_readable_time
 from AnonXMusic.utils.inline import help_pannel, private_panel, start_panel
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS
 from strings import get_string
 
@@ -34,7 +35,7 @@ async def start_pm(client, message: Message, _):
             keyboard = help_pannel(_)
             return await message.reply_photo(
                 photo=config.START_IMG_URL,
-                caption=_["help_1"].format(config.SUPPORT_CHAT),
+                caption=_["help_1"],
                 reply_markup=keyboard,
             )
         if name[0:3] == "sud":
@@ -86,7 +87,7 @@ async def start_pm(client, message: Message, _):
         out = private_panel(_)
         await message.reply_photo(
             photo=config.START_IMG_URL,
-            caption=_["start_2"].format(message.from_user.mention, app.mention),
+            caption=_["start_2"].format(message.from_user.mention),
             reply_markup=InlineKeyboardMarkup(out),
         )
         if await is_on_off(2):
@@ -101,11 +102,13 @@ async def start_pm(client, message: Message, _):
 async def start_gp(client, message: Message, _):
     out = start_panel(_)
     uptime = int(time.time() - _boot_)
-    await message.reply_photo(
+    mystic = await message.reply_photo(
         photo=config.START_IMG_URL,
         caption=_["start_1"].format(app.mention, get_readable_time(uptime)),
         reply_markup=InlineKeyboardMarkup(out),
     )
+    await delete_message(message.chat.id, mystic.id, long_seconds=15)
+
     return await add_served_chat(message.chat.id)
 
 

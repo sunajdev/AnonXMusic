@@ -9,6 +9,7 @@ from AnonXMusic.utils.database import (
     maintenance_off,
     maintenance_on,
 )
+from AnonXMusic.plugins.tools.reload import delete_message
 from strings import get_string
 
 
@@ -21,19 +22,23 @@ async def maintenance(client, message: Message):
         _ = get_string("en")
     usage = _["maint_1"]
     if len(message.command) != 2:
-        return await message.reply_text(usage)
+        mystic = await message.reply_text(usage)
+        await delete_message(message.chat.id, mystic.id)
+        return
     state = message.text.split(None, 1)[1].strip().lower()
     if state == "enable":
         if await is_maintenance() is False:
-            await message.reply_text(_["maint_4"])
+            mystic = await message.reply_text(_["maint_4"])
         else:
             await maintenance_on()
-            await message.reply_text(_["maint_2"].format(app.mention))
+            mystic = await message.reply_text(_["maint_2"].format(app.mention))
     elif state == "disable":
         if await is_maintenance() is False:
             await maintenance_off()
-            await message.reply_text(_["maint_3"].format(app.mention))
+            mystic = await message.reply_text(_["maint_3"].format(app.mention))
         else:
-            await message.reply_text(_["maint_5"])
+            mystic = await message.reply_text(_["maint_5"])
     else:
-        await message.reply_text(usage)
+        mystic = await message.reply_text(usage)
+
+    await delete_message(message.chat.id, mystic.id)    

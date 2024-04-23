@@ -11,6 +11,7 @@ from AnonXMusic.misc import db
 from AnonXMusic.utils.database import get_assistant, get_authuser_names, get_cmode
 from AnonXMusic.utils.decorators import ActualAdminCB, AdminActual, language
 from AnonXMusic.utils.formatters import alpha_to_int, get_readable_time
+from AnonXMusic.utils.database import get_autodelete
 from config import BANNED_USERS, adminlist, lyrical
 
 rel = {}
@@ -96,6 +97,17 @@ async def close_menu(_, query: CallbackQuery):
         )
         await asyncio.sleep(7)
         await umm.delete()
+    except:
+        pass
+
+async def delete_message(chat_id, message_id, long_seconds=None):
+    seconds = await get_autodelete(chat_id)
+    if long_seconds:
+        seconds = long_seconds
+    print('[tools/reload.py] delete_message chat_id:', chat_id, '| message_id:', message_id, '| seconds:', seconds)
+    await asyncio.sleep(int(seconds))
+    try:
+        await app.delete_messages(chat_id, message_id)
     except:
         pass
 

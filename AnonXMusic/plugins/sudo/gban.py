@@ -17,6 +17,7 @@ from AnonXMusic.utils.database import (
 )
 from AnonXMusic.utils.decorators.language import language
 from AnonXMusic.utils.extraction import extract_user
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS
 
 
@@ -25,17 +26,27 @@ from config import BANNED_USERS
 async def global_ban(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+            await message.reply_text(_["general_1"])
+            await delete_message(message.chat.id, message.id)
+            return
     user = await extract_user(message)
     if user.id == message.from_user.id:
-        return await message.reply_text(_["gban_1"])
+        mystic = await message.reply_text(_["gban_1"])
+        await delete_message(message.chat.id, mystic.id)
+        return 
     elif user.id == app.id:
-        return await message.reply_text(_["gban_2"])
+        mystic = await message.reply_text(_["gban_2"])
+        await delete_message(message.chat.id, mystic.id)
+        return
     elif user.id in SUDOERS:
-        return await message.reply_text(_["gban_3"])
+        mystic = await message.reply_text(_["gban_3"])
+        await delete_message(message.chat.id, mystic.id)
+        return
     is_gbanned = await is_banned_user(user.id)
     if is_gbanned:
-        return await message.reply_text(_["gban_4"].format(user.mention))
+        mystic =await message.reply_text(_["gban_4"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
+        return
     if user.id not in BANNED_USERS:
         BANNED_USERS.add(user.id)
     served_chats = []
@@ -54,7 +65,7 @@ async def global_ban(client, message: Message, _):
         except:
             continue
     await add_banned_user(user.id)
-    await message.reply_text(
+    to_del = await message.reply_text(
         _["gban_6"].format(
             app.mention,
             message.chat.title,
@@ -65,6 +76,7 @@ async def global_ban(client, message: Message, _):
             number_of_chats,
         )
     )
+    await delete_message(message.chat.id, to_del.id, long_seconds=30)
     await mystic.delete()
 
 
@@ -73,11 +85,15 @@ async def global_ban(client, message: Message, _):
 async def global_un(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+            mystic = await message.reply_text(_["general_1"])
+            await delete_message(message.chat.id, mystic.id)
+            return
     user = await extract_user(message)
     is_gbanned = await is_banned_user(user.id)
     if not is_gbanned:
-        return await message.reply_text(_["gban_7"].format(user.mention))
+        mystic = await message.reply_text(_["gban_7"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
+        return
     if user.id in BANNED_USERS:
         BANNED_USERS.remove(user.id)
     served_chats = []
@@ -96,7 +112,8 @@ async def global_un(client, message: Message, _):
         except:
             continue
     await remove_banned_user(user.id)
-    await message.reply_text(_["gban_9"].format(user.mention, number_of_chats))
+    to_del = await message.reply_text(_["gban_9"].format(user.mention, number_of_chats))
+    await delete_message(message.chat.id, to_del.id, long_seconds=30)
     await mystic.delete()
 
 
@@ -105,7 +122,9 @@ async def global_un(client, message: Message, _):
 async def gbanned_list(client, message: Message, _):
     counts = await get_banned_count()
     if counts == 0:
-        return await message.reply_text(_["gban_10"])
+        mystic = await message.reply_text(_["gban_10"])
+        await delete_message(message.chat.id, mystic.id)
+        return
     mystic = await message.reply_text(_["gban_11"])
     msg = _["gban_12"]
     count = 0
@@ -120,6 +139,10 @@ async def gbanned_list(client, message: Message, _):
             msg += f"{count}➤ {user_id}\n"
             continue
     if count == 0:
-        return await mystic.edit_text(_["gban_10"])
+        await mystic.edit_text(_["gban_10"])
+        await delete_message(message.chat.id, mystic.id)
+        return
     else:
-        return await mystic.edit_text(msg)
+        await mystic.edit_text(msg)
+        await delete_message(message.chat.id, mystic.id, long_seconds=30)
+        return

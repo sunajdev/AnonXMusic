@@ -8,6 +8,7 @@ from AnonXMusic.core.call import Anony
 from AnonXMusic.utils import bot_sys_stats
 from AnonXMusic.utils.decorators.language import language
 from AnonXMusic.utils.inline import supp_markup
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS, PING_IMG_URL
 
 
@@ -22,7 +23,8 @@ async def ping_com(client, message: Message, _):
     pytgping = await Anony.ping()
     UP, CPU, RAM, DISK = await bot_sys_stats()
     resp = (datetime.now() - start).microseconds / 1000
-    await response.edit_text(
+    to_del = await response.edit_text(
         _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
         reply_markup=supp_markup(_),
     )
+    await delete_message(message.chat.id, to_del.id, long_seconds=30)

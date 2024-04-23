@@ -12,21 +12,35 @@ from AnonXMusic.utils.database import (
     is_maintenance,
     is_nonadmin_chat,
     is_skipmode,
+    get_autodelete
 )
 from config import SUPPORT_CHAT, adminlist, confirmer
 from strings import get_string
 
 from ..formatters import int_to_alpha
 
+import asyncio
+
+async def delete_message(chat_id, message_id, long_seconds=None):
+    seconds = await get_autodelete(chat_id)
+    if long_seconds:
+        seconds = long_seconds
+    await asyncio.sleep(int(seconds))
+    try:
+        await app.delete_messages(chat_id, message_id)
+    except:
+        pass
 
 def AdminRightsCheck(mystic):
     async def wrapper(client, message):
         if await is_maintenance() is False:
             if message.from_user.id not in SUDOERS:
-                return await message.reply_text(
+                to_del = await message.reply_text(
                     text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
                     disable_web_page_preview=True,
                 )
+                await delete_message(message.chat.id, to_del.id)
+                return
 
         try:
             await message.delete()
@@ -49,25 +63,35 @@ def AdminRightsCheck(mystic):
                     ]
                 ]
             )
-            return await message.reply_text(_["general_3"], reply_markup=upl)
+            to_del = await message.reply_text(_["general_3"], reply_markup=upl)
+            await delete_message(message.chat.id, to_del.id, long_seconds=30)
+            return
         if message.command[0][0] == "c":
             chat_id = await get_cmode(message.chat.id)
             if chat_id is None:
-                return await message.reply_text(_["setting_7"])
+                to_del = await message.reply_text(_["setting_7"])
+                await delete_message(message.chat.id, to_del.id)
+                return
             try:
                 await app.get_chat(chat_id)
             except:
-                return await message.reply_text(_["cplay_4"])
+                to_del = await message.reply_text(_["cplay_4"])
+                await delete_message(message.chat.id, to_del.id)
+                return
         else:
             chat_id = message.chat.id
         if not await is_active_chat(chat_id):
-            return await message.reply_text(_["general_5"])
+            to_del = await message.reply_text(_["general_5"])
+            await delete_message(chat_id, to_del.id)
+            return
         is_non_admin = await is_nonadmin_chat(message.chat.id)
         if not is_non_admin:
             if message.from_user.id not in SUDOERS:
                 admins = adminlist.get(message.chat.id)
                 if not admins:
-                    return await message.reply_text(_["admin_13"])
+                    to_del = await message.reply_text(_["admin_13"])
+                    await delete_message(chat_id, to_del.id)
+                    return
                 else:
                     if message.from_user.id not in admins:
                         if await is_skipmode(message.chat.id):
@@ -82,7 +106,9 @@ def AdminRightsCheck(mystic):
                             if command[0] == "c":
                                 command = command[1:]
                             if command == "speed":
-                                return await message.reply_text(_["admin_14"])
+                                to_del = await message.reply_text(_["admin_14"])
+                                await delete_message(chat_id, to_del.id)
+                                return
                             MODE = command.title()
                             upl = InlineKeyboardMarkup(
                                 [
@@ -100,16 +126,20 @@ def AdminRightsCheck(mystic):
                                 vidid = db[chat_id][0]["vidid"]
                                 file = db[chat_id][0]["file"]
                             except:
-                                return await message.reply_text(_["admin_14"])
+                                to_del = await message.reply_text(_["admin_14"])
+                                await delete_message(chat_id, to_del.id)
+                                return
                             senn = await message.reply_text(text, reply_markup=upl)
                             confirmer[chat_id][senn.id] = {
                                 "vidid": vidid,
                                 "file": file,
                             }
+                            await delete_message(chat_id, senn.id, long_seconds=30)
                             return
                         else:
-                            return await message.reply_text(_["admin_14"])
-
+                            to_del = await message.reply_text(_["admin_14"])
+                            await delete_message(chat_id, to_del.id)
+                            return
         return await mystic(client, message, _, chat_id)
 
     return wrapper
@@ -119,10 +149,12 @@ def AdminActual(mystic):
     async def wrapper(client, message):
         if await is_maintenance() is False:
             if message.from_user.id not in SUDOERS:
-                return await message.reply_text(
+                to_del = await message.reply_text(
                     text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
                     disable_web_page_preview=True,
                 )
+                await delete_message(message.chat.id, to_del.id)
+                return
 
         try:
             await message.delete()
@@ -145,7 +177,9 @@ def AdminActual(mystic):
                     ]
                 ]
             )
-            return await message.reply_text(_["general_3"], reply_markup=upl)
+            to_del = await message.reply_text(_["general_3"], reply_markup=upl)
+            await delete_message(message.chat.id, to_del.id, long_seconds=30)
+            return
         if message.from_user.id not in SUDOERS:
             try:
                 member = (
@@ -154,7 +188,9 @@ def AdminActual(mystic):
             except:
                 return
             if not member.can_manage_video_chats:
-                return await message.reply(_["general_4"])
+                to_del = await message.reply(_["general_4"])
+                await delete_message(message.chat.id, to_del.id)
+                return
         return await mystic(client, message, _)
 
     return wrapper
@@ -164,10 +200,12 @@ def ActualAdminCB(mystic):
     async def wrapper(client, CallbackQuery):
         if await is_maintenance() is False:
             if CallbackQuery.from_user.id not in SUDOERS:
-                return await CallbackQuery.answer(
+                to_del = await CallbackQuery.answer(
                     f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
                     show_alert=True,
                 )
+                await delete_message(CallbackQuery.message.chat.id, to_del.id)
+                return
         try:
             language = await get_lang(CallbackQuery.message.chat.id)
             _ = get_string(language)
@@ -185,17 +223,21 @@ def ActualAdminCB(mystic):
                     )
                 ).privileges
             except:
-                return await CallbackQuery.answer(_["general_4"], show_alert=True)
+                to_del = await CallbackQuery.answer(_["general_4"], show_alert=True)
+                await delete_message(CallbackQuery.message.chat.id, to_del.id)
+                return
             if not a.can_manage_video_chats:
                 if CallbackQuery.from_user.id not in SUDOERS:
                     token = await int_to_alpha(CallbackQuery.from_user.id)
                     _check = await get_authuser_names(CallbackQuery.from_user.id)
                     if token not in _check:
                         try:
-                            return await CallbackQuery.answer(
+                            to_del = await CallbackQuery.answer(
                                 _["general_4"],
                                 show_alert=True,
                             )
+                            await delete_message(CallbackQuery.message.chat.id, to_del.id)
+                            return
                         except:
                             return
         return await mystic(client, CallbackQuery, _)

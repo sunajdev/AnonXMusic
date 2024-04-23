@@ -6,6 +6,7 @@ from AnonXMusic.misc import SUDOERS
 from AnonXMusic.utils.database import add_gban_user, remove_gban_user
 from AnonXMusic.utils.decorators.language import language
 from AnonXMusic.utils.extraction import extract_user
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS
 
 
@@ -14,34 +15,44 @@ from config import BANNED_USERS
 async def useradd(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+            mystic = await message.reply_text(_["general_1"])
+            await delete_message(message.chat.id, mystic.id)
+            return 
     user = await extract_user(message)
     if user.id in BANNED_USERS:
-        return await message.reply_text(_["block_1"].format(user.mention))
+        mystic = await message.reply_text(_["block_1"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
+        return 
     await add_gban_user(user.id)
     BANNED_USERS.add(user.id)
-    await message.reply_text(_["block_2"].format(user.mention))
-
+    mystic = await message.reply_text(_["block_2"].format(user.mention))
+    await delete_message(message.chat.id, mystic.id)
 
 @app.on_message(filters.command(["unblock"]) & SUDOERS)
 @language
 async def userdel(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+            mystic = await message.reply_text(_["general_1"])
+            await delete_message(message.chat.id, mystic.id)
+            return 
     user = await extract_user(message)
     if user.id not in BANNED_USERS:
-        return await message.reply_text(_["block_3"].format(user.mention))
+        mystic = await message.reply_text(_["block_3"].format(user.mention))
+        await delete_message(message.chat.id, mystic.id)
+        return 
     await remove_gban_user(user.id)
     BANNED_USERS.remove(user.id)
-    await message.reply_text(_["block_4"].format(user.mention))
-
+    mystic = await message.reply_text(_["block_4"].format(user.mention))
+    await delete_message(message.chat.id, mystic.id)
 
 @app.on_message(filters.command(["blocked", "blockedusers", "blusers"]) & SUDOERS)
 @language
 async def sudoers_list(client, message: Message, _):
     if not BANNED_USERS:
-        return await message.reply_text(_["block_5"])
+        mystic = await message.reply_text(_["block_5"])
+        await delete_message(message.chat.id, mystic.id)
+        return 
     mystic = await message.reply_text(_["block_6"])
     msg = _["block_7"]
     count = 0
@@ -54,6 +65,8 @@ async def sudoers_list(client, message: Message, _):
             continue
         msg += f"{count}➤ {user}\n"
     if count == 0:
-        return await mystic.edit_text(_["block_5"])
+        await mystic.edit_text(_["block_5"])
     else:
-        return await mystic.edit_text(msg)
+        await mystic.edit_text(msg)
+        
+    await delete_message(message.chat.id, mystic.id)

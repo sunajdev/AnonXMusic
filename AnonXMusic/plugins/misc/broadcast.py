@@ -15,6 +15,7 @@ from AnonXMusic.utils.database import (
 )
 from AnonXMusic.utils.decorators.language import language
 from AnonXMusic.utils.formatters import alpha_to_int
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import adminlist
 
 IS_BROADCASTING = False
@@ -29,7 +30,9 @@ async def braodcast_message(client, message, _):
         y = message.chat.id
     else:
         if len(message.command) < 2:
-            return await message.reply_text(_["broad_2"])
+            mystic = await message.reply_text(_["broad_2"])
+            await delete_message(message.chat.id, mystic.id)
+            return 
         query = message.text.split(None, 1)[1]
         if "-pin" in query:
             query = query.replace("-pin", "")
@@ -42,10 +45,12 @@ async def braodcast_message(client, message, _):
         if "-user" in query:
             query = query.replace("-user", "")
         if query == "":
-            return await message.reply_text(_["broad_8"])
+            mystic = await message.reply_text(_["broad_8"])
+            await delete_message(message.chat.id, mystic.id)
+            return 
 
     IS_BROADCASTING = True
-    await message.reply_text(_["broad_1"])
+    mystic = await message.reply_text(_["broad_1"])
 
     if "-nobot" not in message.text:
         sent = 0
@@ -83,7 +88,7 @@ async def braodcast_message(client, message, _):
             except:
                 continue
         try:
-            await message.reply_text(_["broad_3"].format(sent, pin))
+            mystic = await message.reply_text(_["broad_3"].format(sent, pin))
         except:
             pass
 
@@ -110,7 +115,7 @@ async def braodcast_message(client, message, _):
             except:
                 pass
         try:
-            await message.reply_text(_["broad_4"].format(susr))
+            mystic = await message.reply_text(_["broad_4"].format(susr))
         except:
             pass
 
@@ -140,10 +145,11 @@ async def braodcast_message(client, message, _):
                     continue
             text += _["broad_7"].format(num, sent)
         try:
-            await aw.edit_text(text)
+            mystic = await aw.edit_text(text)
         except:
             pass
     IS_BROADCASTING = False
+    await delete_message(message.chat.id, mystic.id)
 
 
 async def auto_clean():

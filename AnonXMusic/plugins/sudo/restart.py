@@ -19,6 +19,7 @@ from AnonXMusic.utils.database import (
 )
 from AnonXMusic.utils.decorators.language import language
 from AnonXMusic.utils.pastebin import AnonyBin
+from AnonXMusic.plugins.tools.reload import delete_message
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -33,8 +34,8 @@ async def log_(client, message, _):
     try:
         await message.reply_document(document="log.txt")
     except:
-        await message.reply_text(_["server_1"])
-
+        mystic = await message.reply_text(_["server_1"])
+        await delete_message(message.chat.id, mystic.id)
 
 @app.on_message(filters.command(["update", "gitpull"]) & SUDOERS)
 @language

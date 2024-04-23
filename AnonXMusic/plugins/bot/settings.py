@@ -34,6 +34,7 @@ from AnonXMusic.utils.inline.settings import (
     vote_mode_markup,
 )
 from AnonXMusic.utils.inline.start import private_panel
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS, OWNER_ID
 
 
@@ -79,7 +80,7 @@ async def settings_back_markup(client, CallbackQuery: CallbackQuery, _):
         OWNER = OWNER_ID
         buttons = private_panel(_)
         return await CallbackQuery.edit_message_text(
-            _["start_2"].format(CallbackQuery.from_user.mention, app.mention),
+            _["start_2"].format(CallbackQuery.from_user.mention,),
             reply_markup=InlineKeyboardMarkup(buttons),
         )
     else:
@@ -359,9 +360,11 @@ async def authusers_mar(client, CallbackQuery, _):
             await remove_nonadmin_chat(CallbackQuery.message.chat.id)
             buttons = auth_users_markup(_, True)
     try:
-        return await CallbackQuery.edit_message_reply_markup(
+        mystic = await CallbackQuery.edit_message_reply_markup(
             reply_markup=InlineKeyboardMarkup(buttons)
         )
+        await delete_message(CallbackQuery.message.chat.id, mystic.id)
+        return
     except MessageNotModified:
         return
 

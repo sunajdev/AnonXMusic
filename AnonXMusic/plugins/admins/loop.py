@@ -5,6 +5,7 @@ from AnonXMusic import app
 from AnonXMusic.utils.database import get_loop, set_loop
 from AnonXMusic.utils.decorators import AdminRightsCheck
 from AnonXMusic.utils.inline import close_markup
+from AnonXMusic.plugins.tools.reload import delete_message
 from config import BANNED_USERS
 
 
@@ -13,7 +14,9 @@ from config import BANNED_USERS
 async def admins(cli, message: Message, _, chat_id):
     usage = _["admin_17"]
     if len(message.command) != 2:
-        return await message.reply_text(usage)
+        mystic = await message.reply_text(usage)
+        await delete_message(chat_id, mystic.id)
+        return
     state = message.text.split(None, 1)[1].strip()
     if state.isnumeric():
         state = int(state)
@@ -24,23 +27,33 @@ async def admins(cli, message: Message, _, chat_id):
             if int(state) > 10:
                 state = 10
             await set_loop(chat_id, state)
-            return await message.reply_text(
+            mystic = await message.reply_text(
                 text=_["admin_18"].format(state, message.from_user.mention),
                 reply_markup=close_markup(_),
             )
+            await delete_message(chat_id, mystic.id)
+            return
         else:
-            return await message.reply_text(_["admin_17"])
+            mystic = await message.reply_text(_["admin_17"])
+            await delete_message(chat_id, mystic.id)
+            return
     elif state.lower() == "enable":
         await set_loop(chat_id, 10)
-        return await message.reply_text(
+        mystic = await message.reply_text(
             text=_["admin_18"].format(state, message.from_user.mention),
             reply_markup=close_markup(_),
         )
+        await delete_message(chat_id, mystic.id)
+        return
     elif state.lower() == "disable":
         await set_loop(chat_id, 0)
-        return await message.reply_text(
+        mystic = await message.reply_text(
             _["admin_19"].format(message.from_user.mention),
             reply_markup=close_markup(_),
         )
+        await delete_message(chat_id, mystic.id)
+        return
     else:
-        return await message.reply_text(usage)
+        mystic = await message.reply_text(usage)
+        await delete_message(chat_id, mystic.id)
+        return
