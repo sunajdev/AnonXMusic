@@ -1,0 +1,28 @@
+V2
+- [ok] Play live streams from YT
+- [ok] Less spam in chat, maybe delete its own messages after 1m
+
+remove channel, support, source code 
+ask about developer
+
+
+-> when removing support/channel, make sure any markup doesnt have it.
+
+
+- [ ] Play playlists by YT url input # test dit met seek om skipping tot einde en zien
+- [ ] possible to change volume ? # yes
+
+other
+- [ ] what about -4 groups ? not supergroups, you cant set it as logger ?
+
+# maybe later
+- languages: ar (🇦🇪 عربي), hi (🇮🇳 हिंदी), pa (🇮🇳 ਪੰਜਾਬੀ)
+
+video: 
+- vflip 	: ffmpeg -i in.avi -vf "vflip" out.avi
+- hflip 	: ffmpeg -i in.avi -vf "hflip" out.avi
+- rotate 	: "ffmpeg -i input.mp4 -vf "transpose=1" output.mp4", This command rotates the video 90 degrees clockwise. You can use transpose=2 for 90 degrees counterclockwise.
+- add substitles: ffmpeg -i input.mp4 -vf subtitles=subtitles.srt output.mp4
+
+audio
+- volume	: ffmpeg -i input.mp3 -af "volume=2.0" output.mp3, doubles the volume
