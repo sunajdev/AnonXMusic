@@ -297,19 +297,15 @@ class Call(PyTgCalls):
         image: Union[bool, str] = None,
     ):
         assistant = await group_assistant(self, chat_id)
-        print('assistant:', assistant)
         language = await get_lang(chat_id)
         _ = get_string(language)
         if video:
-            print('yes video:', video)
             stream = AudioVideoPiped(
                 link,
                 audio_parameters=HighQualityAudio(),
                 video_parameters=MediumQualityVideo(),
             )
-            print('1stream:', stream)
         else:
-            print('not video:', video)
             stream = (
                 AudioVideoPiped(
                     link,
@@ -319,7 +315,6 @@ class Call(PyTgCalls):
                 if video
                 else AudioPiped(link, audio_parameters=HighQualityAudio())
             )
-            print('2stream:', stream)
         try:
             print('trying to join call...')
             await assistant.join_group_call(
@@ -334,9 +329,6 @@ class Call(PyTgCalls):
             raise AssistantErr(_["call_9"])
         except TelegramServerError:
             raise AssistantErr(_["call_10"])
-        except Exception as e:
-            print('erroryyy:', e)
-            raise AssistantErr(e)
         print('adding active chat...')
         await add_active_chat(chat_id)
         print('added active chat..., putting music on...')

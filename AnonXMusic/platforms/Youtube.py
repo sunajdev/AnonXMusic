@@ -11,6 +11,7 @@ from youtubesearchpython.__future__ import VideosSearch
 from AnonXMusic.utils.database import is_on_off
 from AnonXMusic.utils.formatters import time_to_seconds
 
+import config
 
 async def shell_cmd(cmd):
     proc = await asyncio.create_subprocess_shell(
@@ -244,6 +245,7 @@ class YouTubeAPI:
         loop = asyncio.get_running_loop()
 
         def audio_dl():
+            print('proxy:', config.PROXY_URL)
             ydl_optssx = {
                 "format": "bestaudio/best",
                 "outtmpl": "downloads/%(id)s.%(ext)s",
@@ -251,6 +253,7 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
+                "proxy": config.PROXY_URL
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -261,6 +264,7 @@ class YouTubeAPI:
             return xyz
 
         def video_dl():
+            print('proxy:', config.PROXY_URL)
             ydl_optssx = {
                 "format": "(bestvideo[height<=?720][width<=?1280][ext=mp4])+(bestaudio[ext=m4a])",
                 "outtmpl": "downloads/%(id)s.%(ext)s",
@@ -268,6 +272,7 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
+                "proxy": config.PROXY_URL
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -278,6 +283,7 @@ class YouTubeAPI:
             return xyz
 
         def song_video_dl():
+            print('proxy:', config.PROXY_URL)
             formats = f"{format_id}+140"
             fpath = f"downloads/{title}"
             ydl_optssx = {
@@ -289,11 +295,13 @@ class YouTubeAPI:
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
                 "merge_output_format": "mp4",
+                "proxy": config.PROXY_URL
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             x.download([link])
 
         def song_audio_dl():
+            print('proxy:', config.PROXY_URL)
             fpath = f"downloads/{title}.%(ext)s"
             ydl_optssx = {
                 "format": format_id,
@@ -310,6 +318,7 @@ class YouTubeAPI:
                         "preferredquality": "192",
                     }
                 ],
+                "proxy": config.PROXY_URL
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             x.download([link])
