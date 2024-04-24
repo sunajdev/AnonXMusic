@@ -169,7 +169,7 @@ async def play_commnd(
                 return
             return await mystic.delete()
         return
-    elif url:
+    elif url: 
         if await YouTube.exists(url):
             print("URL is a YouTube URL: ", url)
             print("Checking if it is a playlist or track")
