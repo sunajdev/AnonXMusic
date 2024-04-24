@@ -133,6 +133,7 @@ async def stream(
                 reply_markup=upl,
             )
     elif streamtype == "youtube":
+        print('result:', result)
         link = result["link"]
         vidid = result["vidid"]
         title = (result["title"]).title()

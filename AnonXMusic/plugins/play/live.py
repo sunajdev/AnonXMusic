@@ -40,6 +40,17 @@ async def play_live_stream(client, CallbackQuery, _):
     ffplay = True if fplay == "f" else None
     if not details["duration_min"]:
         try:
+            print('trying to stream live stream:')
+            print('mysitc:', mystic)
+            print('user_id:', user_id)
+            print('details:', details)
+            print('chat_id:', chat_id)
+            print('user_name:', user_name)
+            print('CallbackQuery.message.chat.id:', CallbackQuery.message.chat.id)
+            print('video:', video)
+            print('streamtype:', "live")
+            print('forceplay:', ffplay)
+            print('streaming...')
             await stream(
                 _,
                 mystic,
