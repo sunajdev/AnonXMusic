@@ -40,17 +40,7 @@ async def play_live_stream(client, CallbackQuery, _):
     ffplay = True if fplay == "f" else None
     if not details["duration_min"]:
         try:
-            print('trying to stream live stream:')
-            print('mysitc:', mystic)
-            print('user_id:', user_id)
-            print('details:', details)
-            print('chat_id:', chat_id)
-            print('user_name:', user_name)
-            print('CallbackQuery.message.chat.id:', CallbackQuery.message.chat.id)
-            print('video:', video)
-            print('streamtype:', "live")
-            print('forceplay:', ffplay)
-            print('streaming...')
+            print('trying to stream live stream...')
             await stream(
                 _,
                 mystic,
@@ -64,6 +54,7 @@ async def play_live_stream(client, CallbackQuery, _):
                 forceplay=ffplay,
             )
         except Exception as e:
+            print('errorxx:', e)
             ex_type = type(e).__name__
             err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
             return await mystic.edit_text(err)

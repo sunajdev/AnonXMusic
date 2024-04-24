@@ -172,19 +172,14 @@ async def play_commnd(
     elif url: 
         if await YouTube.exists(url):
             print("URL is a YouTube URL: ", url)
-            print("Checking if it is a playlist or track")
             if "playlist" in url:
-                print('Playlist URL')
                 try:
-                    print('trying to get playlist details of youtube')
                     details = await YouTube.playlist(
                         url,
                         config.PLAYLIST_FETCH_LIMIT,
                         message.from_user.id,
                     )
-                    print('details:', details)
                 except Exception as e:
-                    print('error:', e)
                     await mystic.edit_text(_["play_3"])
                     await delete_message(chat_id, mystic.id)
                     return 
@@ -197,7 +192,6 @@ async def play_commnd(
                 img = config.PLAYLIST_IMG_URL
                 cap = _["play_9"]
             else:
-                print('not a playlist')
                 try:
                     print('trying to get track details of youtube')
                     details, track_id = await YouTube.track(url)
@@ -213,7 +207,6 @@ async def play_commnd(
                     details["title"],
                     details["duration_min"],
                 )
-                print('>> details:', details)
         elif await Spotify.valid(url):
             spotify = True
             if not config.SPOTIFY_CLIENT_ID and not config.SPOTIFY_CLIENT_SECRET:
