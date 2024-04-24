@@ -190,9 +190,13 @@ async def play_commnd(
                 img = config.PLAYLIST_IMG_URL
                 cap = _["play_9"]
             else:
+                print('not a playlist')
                 try:
+                    print('trying to get track details of youtube')
                     details, track_id = await YouTube.track(url)
-                except:
+                    print('details:', details, 'track_id:', track_id)
+                except Exception as e:
+                    print('error:', e)
                     await mystic.edit_text(_["play_3"])
                     await delete_message(chat_id, mystic.id)
                     return
@@ -202,6 +206,7 @@ async def play_commnd(
                     details["title"],
                     details["duration_min"],
                 )
+                print('>> details:', details)
         elif await Spotify.valid(url):
             spotify = True
             if not config.SPOTIFY_CLIENT_ID and not config.SPOTIFY_CLIENT_SECRET:
@@ -388,16 +393,22 @@ async def play_commnd(
             return
         streamtype = "youtube"
     if str(playmode) == "Direct":
+        print('Direct Play Mode')
         if not plist_type:
+            print('Not a playlist')
             if details["duration_min"]:
+                print('Duration is available')
                 duration_sec = time_to_seconds(details["duration_min"])
+                print('Duration in seconds:', duration_sec);
                 if duration_sec > config.DURATION_LIMIT:
+                    print('Duration is greater than limit')
                     await mystic.edit_text(
                         _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
                     )
                     await delete_message(chat_id, mystic.id)
                     return
             else:
+                print('Duration is not available');
                 buttons = livestream_markup(
                     _,
                     track_id,
@@ -410,6 +421,7 @@ async def play_commnd(
                     _["play_13"],
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
+                print('Streaming live stream');
                 await delete_message(chat_id, mystic.id)
                 return
         try:
@@ -435,6 +447,7 @@ async def play_commnd(
         await mystic.delete()
         return await play_logs(message, streamtype=streamtype)
     else:
+        print('NOT Direct Play Mode')
         if plist_type:
             ran_hash = "".join(
                 random.choices(string.ascii_uppercase + string.digits, k=10)
