@@ -172,6 +172,7 @@ async def play_commnd(
     elif url:
         if await YouTube.exists(url):
             print("URL is a YouTube URL: ", url)
+            print("Checking if it is a playlist or track")
             if "playlist" in url:
                 print('Playlist URL')
                 try:

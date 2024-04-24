@@ -650,7 +650,7 @@ async def remove_banned_user(user_id: int):
 async def get_autodelete(chat_id: int) -> int:
     value = autodelete.get(chat_id)
     if not value:
-        autodelete[chat_id] = 3 # default to 3 seconds
+        autodelete[chat_id] = 15 # default to 15 seconds
         return autodelete[chat_id] 
     return value
 

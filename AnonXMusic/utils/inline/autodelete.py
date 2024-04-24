@@ -6,28 +6,28 @@ def autodelete_markup(_, chat_id):
         [
             [
                 InlineKeyboardButton(
-                    text="🕒 3s",
-                    callback_data=f"AutoDelete {chat_id}|3",
+                    text="🕒 5s",
+                    callback_data=f"AutoDelete {chat_id}|5",
                 ),
                 InlineKeyboardButton(
-                    text="🕓 5s",
-                    callback_data=f"AutoDelete {chat_id}|5",
+                    text="🕓 10s",
+                    callback_data=f"AutoDelete {chat_id}|10",
                 ),
             ],
             [
                 InlineKeyboardButton(
                     text=_["P_B_4"],
-                    callback_data=f"AutoDelete {chat_id}|1",
+                    callback_data=f"AutoDelete {chat_id}|15",
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text="🕤 10s",
-                    callback_data=f"AutoDelete {chat_id}|10",
+                    text="🕤 30s",
+                    callback_data=f"AutoDelete {chat_id}|30",
                 ),
                 InlineKeyboardButton(
-                    text="🕛 15s",
-                    callback_data=f"AutoDelete {chat_id}|15",
+                    text="🕛 60s",
+                    callback_data=f"AutoDelete {chat_id}|60",
                 ),
             ],
             [
