@@ -110,7 +110,6 @@ async def play_commnd(
                     forceplay=fplay,
                 )
             except Exception as e:
-                print('Error1:', e)
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 await mystic.edit_text(err)
@@ -161,7 +160,6 @@ async def play_commnd(
                     forceplay=fplay,
                 )
             except Exception as e:
-                print('Error2:', e)
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 await mystic.edit_text(err)
@@ -171,7 +169,6 @@ async def play_commnd(
         return
     elif url: 
         if await YouTube.exists(url):
-            print("URL is a YouTube URL: ", url)
             if "playlist" in url:
                 try:
                     details = await YouTube.playlist(
@@ -193,11 +190,8 @@ async def play_commnd(
                 cap = _["play_9"]
             else:
                 try:
-                    print('trying to get track details of youtube')
                     details, track_id = await YouTube.track(url)
-                    print('details:', details, 'track_id:', track_id)
                 except Exception as e:
-                    print('error:', e)
                     await mystic.edit_text(_["play_3"])
                     await delete_message(chat_id, mystic.id)
                     return
@@ -329,7 +323,6 @@ async def play_commnd(
                     forceplay=fplay,
                 )
             except Exception as e:
-                print('Error3:', e)
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 await mystic.edit_text(err)
@@ -349,7 +342,6 @@ async def play_commnd(
                 await delete_message(chat_id, to_del.id)
                 return
             except Exception as e:
-                print('Error4:', e)
                 await mystic.edit_text(_["general_2"].format(type(e).__name__))
                 await delete_message(chat_id, mystic.id)
                 return
@@ -368,7 +360,6 @@ async def play_commnd(
                     forceplay=fplay,
                 )
             except Exception as e:
-                print('Error5:', e)
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 await mystic.edit_text(err)
@@ -396,22 +387,16 @@ async def play_commnd(
             return
         streamtype = "youtube"
     if str(playmode) == "Direct":
-        print('Direct Play Mode')
         if not plist_type:
-            print('Not a playlist')
             if details["duration_min"]:
-                print('Duration is available')
                 duration_sec = time_to_seconds(details["duration_min"])
-                print('Duration in seconds:', duration_sec);
                 if duration_sec > config.DURATION_LIMIT:
-                    print('Duration is greater than limit')
                     await mystic.edit_text(
                         _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
                     )
                     await delete_message(chat_id, mystic.id)
                     return
             else:
-                print('Duration is not available');
                 buttons = livestream_markup(
                     _,
                     track_id,
@@ -424,7 +409,6 @@ async def play_commnd(
                     _["play_13"],
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
-                print('Streaming live stream');
                 await delete_message(chat_id, mystic.id)
                 return
         try:
@@ -442,7 +426,6 @@ async def play_commnd(
                 forceplay=fplay,
             )
         except Exception as e:
-            print('Error6:', e)
             ex_type = type(e).__name__
             err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
             await mystic.edit_text(err)
@@ -451,7 +434,6 @@ async def play_commnd(
         await mystic.delete()
         return await play_logs(message, streamtype=streamtype)
     else:
-        print('NOT Direct Play Mode')
         if plist_type:
             ran_hash = "".join(
                 random.choices(string.ascii_uppercase + string.digits, k=10)
@@ -579,7 +561,6 @@ async def play_music(client, CallbackQuery, _):
             forceplay=ffplay,
         )
     except Exception as e:
-        print('Error7:', e)
         ex_type = type(e).__name__
         err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
         await mystic.edit_text(err)
@@ -691,7 +672,6 @@ async def play_playlists_command(client, CallbackQuery, _):
             forceplay=ffplay,
         )
     except Exception as e:
-        print('Error8:', e)
         ex_type = type(e).__name__
         err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
         await mystic.edit_text(err)

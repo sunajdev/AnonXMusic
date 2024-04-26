@@ -37,7 +37,6 @@ async def autodelete_callback(client, CallbackQuery, _):
     callback_request = callback_data.split(None, 1)[1]
     chat, seconds = callback_request.split("|")
     chat_id = int(chat)
-    print('[admins/autodelete.py] chat_id:', chat_id, '| seconds:', seconds)
 
     is_non_admin = await is_nonadmin_chat(CallbackQuery.message.chat.id)
     if not is_non_admin:

@@ -40,7 +40,6 @@ async def play_live_stream(client, CallbackQuery, _):
     ffplay = True if fplay == "f" else None
     if not details["duration_min"]:
         try:
-            print('trying to stream live stream...')
             await stream(
                 _,
                 mystic,

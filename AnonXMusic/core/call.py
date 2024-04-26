@@ -212,7 +212,6 @@ class Call(PyTgCalls):
         if str(db[chat_id][0]["file"]) == str(file_path):
             await assistant.change_stream(chat_id, stream)
         else:
-            print('raise AssistantErr("Umm")')
             raise AssistantErr("Umm")
         if str(db[chat_id][0]["file"]) == str(file_path):
             exis = (playing[0]).get("old_dur")
@@ -316,33 +315,24 @@ class Call(PyTgCalls):
                 else AudioPiped(link, audio_parameters=HighQualityAudio())
             )
         try:
-            print('trying to join call...')
             await assistant.join_group_call(
                 chat_id,
                 stream,
                 stream_type=StreamType().pulse_stream,
             )
-            print('joined call...')
         except NoActiveGroupCall:
             raise AssistantErr(_["call_8"])
         except AlreadyJoinedError:
             raise AssistantErr(_["call_9"])
         except TelegramServerError:
             raise AssistantErr(_["call_10"])
-        print('adding active chat...')
         await add_active_chat(chat_id)
-        print('added active chat..., putting music on...')
         await music_on(chat_id)
-        print('music on...')
         if video:
-            print('yes video:', video)
             await add_active_video_chat(chat_id)
-            print('added active video chat...')
         if await is_autoend():
-            print('autoend:', await is_autoend())
             counter[chat_id] = {}
             users = len(await assistant.get_participants(chat_id))
-            print('users:', users)
             if users == 1:
                 autoend[chat_id] = datetime.now() + timedelta(minutes=1)
 

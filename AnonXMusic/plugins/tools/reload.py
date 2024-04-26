@@ -104,7 +104,6 @@ async def delete_message(chat_id, message_id, long_seconds=None):
     seconds = await get_autodelete(chat_id)
     if long_seconds:
         seconds = long_seconds
-    print('[tools/reload.py] delete_message chat_id:', chat_id, '| message_id:', message_id, '| seconds:', seconds)
     await asyncio.sleep(int(seconds))
     try:
         await app.delete_messages(chat_id, message_id)
